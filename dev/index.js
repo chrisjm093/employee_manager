@@ -20,9 +20,9 @@ function addDepartment(){
 
 
 function addRole(){
-    // connection.query("SELECT * FROM department", (err, results) =>{
-    //     if( err ) throw err;
-    // });
+    connection.query("SELECT * FROM department", (err, results) =>{
+        if( err ) throw err;
+    
     
     inquirer.prompt([
         {
@@ -32,13 +32,11 @@ function addRole(){
         },
         {
             message: "What is the salary?",
-            type: "number",
-            name: "salary"
-            // validate: (value) =>{
-            //     if( value === isNAN)
-            //     done console.log("Please enter a number for the Salary only.")
-            //     return
-            // }
+            type: "input",
+            name: "salary",
+            validate: (value) =>{
+               return !isNaN(value) ? true : "Please provide a number value."
+            }
         },
         {
             message: "What department does the role belong to?",
@@ -49,16 +47,16 @@ function addRole(){
                     name: department.name,
                     value: department.id
                 }
-        })
+            })
         }
-    ]).then((res) =>{
-
-        connection.query( "INSERT INTO department (name) VALUES (?)", res.departmentName, (err, result) =>{
-            if( err ) throw err;
-            console.log( "inserted as ID" + result.insertID );
+        ]).then((response) =>{
+            console.log(response);
+            connection.query( "INSERT INTO role SET ?", response, (err, result) =>{
+                if( err ) throw err;
+                console.log( "inserted as ID" + result.insertId );
+            })
         })
-    })
-
+    });
 };
 
 function addEmployee(){
