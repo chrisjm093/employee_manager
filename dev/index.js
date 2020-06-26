@@ -6,16 +6,33 @@ function initialize(){
         {
             message: "What would you like to do?",
             type: "list",
-            choices: ["Add new Department", "Add new Role", "Add new Employee"],
-            name: "initChoices"
+            choices: ["Add to the Employee Database", "View information from the Database"],
+            name: "addOrView"
         }
     ]).then((response) =>{
-        console.log(response);
-        if(response.initChoices === "Add new Department"){
+        if(response.addOrView === "Add to the Employee Database"){
+            addInit();
+        }else if( response.addOrView === "View information from the Database"){
+            viewInit();
+        }
+    })
+};
+
+function addInit(){
+    inquirer.prompt([
+        {
+            message: "What would you like to add?",
+            type: "list",
+            choices: ["Add new Department", "Add new Role", "Add new Employee"],
+            name: "addInitChoices"
+        }
+    ]).then((response) =>{
+        
+        if(response.addInitChoices === "Add new Department"){
             addDepartment();
-        }else if( response.initChoices === "Add new Role"){
+        }else if( response.addInitChoices === "Add new Role"){
             addRole();
-        }else if( response.initChoices === "Add new Employee"){
+        }else if( response.addInitChoices === "Add new Employee"){
             addEmployee();
         };
     })
@@ -23,6 +40,25 @@ function initialize(){
         console.log(err)
     })
 };
+
+function viewInit(){
+    inquirer.prompt([
+        {
+            message: "what would you like to view?",
+            type: "list",
+            choices: ["View Departments", "View Roles", "View Employees"],
+            name: "viewInitChoices"
+        }
+    ]).then( (response ) =>{
+        if(response.viewInitChoices === "View Departments"){
+            viewDepartments();
+        } else if(response.viewInitChoices === "View Roles") {
+            viewRoles();
+        }else if(response.viewInitChoices === "View Employees"){
+            viewEmployees();
+        }
+    })
+}
 
 
 function addDepartment(){
@@ -84,7 +120,7 @@ function addRole(){
 };
 
 function addEmployee(){
-    connection.query("SELECT * FROM department", (err, results) =>{
+    connection.query("SELECT * FROM role", (err, results) =>{
         if( err ) throw err;
         
         inquirer.prompt([
@@ -105,51 +141,75 @@ function addEmployee(){
                 choices: results.map( role =>{
                     return {
                         name: role.title,
-                        value: role.id
+                        value: role.id 
                     }
                 })
             }
         ]).then((response) =>{
             console.log(response);
+            addManager(response);
         });
+    });
     
-    connection.query("SELECT role FROM employee WHERE ?", 
-        { manager }, (err, results) =>{
-            if( err ) throw err;
-
-            inquirer.prompt([
-                {
-                    message: "Who is the employee's manager?",
-                    type: "list",
-                    choices: results.map( results )
-
-                }
-            ]).then((response) =>{
-            console.log(response);
             // connection.query( "INSERT INTO role SET ?", response, (err, result) =>{
             //     if( err ) throw err;
             //     console.log( "inserted as ID" + result.insertId );
             // })
-        })
+        // })
 
-        });
-         
-        
-    });
+        // });
 
 };
 
-function viewDepartment(){
+function getRoles(cb){
+    connection.query("SELECT * FROM role", (err, results) =>{
+        if(err) throw err;
+        cb( results );
+    })
+
+};
+
+function getEmployees(cb){
+    connection.query("SELECT * FROM employees", (err, results) =>{
+        if(err) throw err;
+        cb(results);
+    })
+}
+
+function addManager( data ){
+   
+    connection.query("SELECT * FROM employee WHERE role_id = ", 
+            (err, results) =>{
+            if( err ) throw err
+                console.log(results);
+            // inquirer.prompt([
+            //     {
+            //         message: "Who is the employee's manager?",
+            //         type: "list",
+            //         choices: results.map( manager =>{
+            //             return {
+            //                 name: role.title,
+            //                 value: role.id 
+            //             }
+            //         } )
+            //     }
+            // ]).then((response) =>{
+            // console.log(response);
+            // });
+    })
+};
+
+function viewDepartments(){
 
 
 };
 
-function viewRole(){
+function viewRoles(){
 
 
 };
 
-function viewEmployee(){
+function viewEmployees(){
 
 
 };
