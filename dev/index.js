@@ -11,8 +11,7 @@ function banner() {
 };
 
 function initialize(){
-    
-    
+      
     inquirer.prompt([
         {
             message: "What would you like to do?",
@@ -84,6 +83,7 @@ function addDepartment(){
             if( err ) throw err;
 
             console.log( "inserted as ID" + result.insertId );
+            askToContinue();
         })
     })
 
@@ -125,90 +125,82 @@ function addRole(){
             connection.query( "INSERT INTO role SET ?", response, (err, result) =>{
                 if( err ) throw err;
                 console.log( "inserted as ID" + result.insertId );
+                askToContinue();
             })
         })
     });
 };
 
 function addEmployee(){
-    connection.query("SELECT * FROM role", (err, results) =>{
-        if( err ) throw err;
-        
-        inquirer.prompt([
-            {
-                message: "What is the Employee's First Name?",
-                type: "input",
-                name: "first_name"
-            },
-            {
-                message: "What is the Employee's Last Name?",
-                type: "input",
-                name: "last_name",
-            },
-            {
-                message: "What department does the role belong to?",
-                type: "list",
-                name: "department_id",
-                choices: results.map( role =>{
-                    return {
-                        name: role.title,
-                        value: role.id 
-                    }
+    getRoles((roles) =>{
+        getEmployees((employees) =>{
+            employeeSelections =  employees.map( employee =>{
+                return{
+                    name: employee.first_name + ' ' + employee.last_name,
+                    value: employee.id
+                }
+            })
+            employeeSelections.unshift( { name: "None", value: null } );
+             
+            inquirer.prompt([
+                {
+                    message: "What is the Employee's First Name?",
+                    type: "input",
+                    name: "first_name"
+                },
+                {
+                    message: "What is the Employee's Last Name?",
+                    type: "input",
+                    name: "last_name",
+                },
+                {
+                    message: "What is the employee's role?",
+                    type: "list",
+                    name: "role_id",
+                    choices: roles.map( role =>{
+                        return {
+                            name: role.title,
+                            value: role.id 
+                        }
+                    })
+                },
+                {
+                    message: "Enter the employee's manager?",
+                    type: "list",
+                    name: "manager_id",
+                    choices: employeeSelections
+                }
+            ]).then((response) =>{
+                connection.query( "INSERT INTO employee SET ?", response, (err, result) =>{
+                    if( err ) throw err;
+                    console.log( "inserted as ID" + result.insertId );
+                    askToContinue();
+
                 })
-            }
-        ]).then((response) =>{
-            console.log(response);
-            addManager(response);
+                
+            });
         });
-    });
-    
-            // connection.query( "INSERT INTO role SET ?", response, (err, result) =>{
-            //     if( err ) throw err;
-            //     console.log( "inserted as ID" + result.insertId );
-            // })
-        // })
-
-        // });
-
+    })
 };
 
 function getRoles(cb){
     connection.query("SELECT * FROM role", (err, results) =>{
         if(err) throw err;
+        
         cb( results );
     })
 
 };
 
 function getEmployees(cb){
-    connection.query("SELECT * FROM employees", (err, results) =>{
+    connection.query("SELECT * FROM employee", (err, results) =>{
         if(err) throw err;
+        
         cb(results);
+
     })
 }
 
-function addManager( data ){
-   
-    connection.query("SELECT * FROM employee WHERE role_id = ", 
-            (err, results) =>{
-            if( err ) throw err
-                console.log(results);
-            // inquirer.prompt([
-            //     {
-            //         message: "Who is the employee's manager?",
-            //         type: "list",
-            //         choices: results.map( manager =>{
-            //             return {
-            //                 name: role.title,
-            //                 value: role.id 
-            //             }
-            //         } )
-            //     }
-            // ]).then((response) =>{
-            // console.log(response);
-            // });
-    })
-};
 
 function viewDepartments(){
 
@@ -242,10 +234,7 @@ function askToContinue() {
         if(response.continue === true){
             initialize()
         } else {
-            console.log("Team Built!");
-            console.log(employees);
-           
-            createHTMLFile();
+          console.log("Thank You, Have a nice day!")
         }
         
     })
