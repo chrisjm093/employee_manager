@@ -1,7 +1,18 @@
 const connection = require("./db/connection");
 const inquirer = require("inquirer");
+const figlet = require('figlet');
+
+function banner() {
+    figlet('Employee Manager', (err, data) =>{
+        if(err) throw err;
+        console.log(data);
+        initialize();
+    })
+};
 
 function initialize(){
+    
+    
     inquirer.prompt([
         {
             message: "What would you like to do?",
@@ -218,4 +229,25 @@ function updateEmployeeRoles(){
 
 
 ;}
-initialize();
+
+function askToContinue() {
+    inquirer
+    .prompt({
+        type: "confirm",
+        message: "Would you like to make another inquiry?",
+        name: "continue"
+    })
+    .then( ( response ) =>{
+        console.log("=============================")
+        if(response.continue === true){
+            initialize()
+        } else {
+            console.log("Team Built!");
+            console.log(employees);
+           
+            createHTMLFile();
+        }
+        
+    })
+}
+banner();
