@@ -1,6 +1,7 @@
 const connection = require("./db/connection");
 const inquirer = require("inquirer");
 const figlet = require('figlet');
+const cTable = require('console.table');
 
 function banner() {
     figlet('Employee Manager', (err, data) =>{
@@ -56,16 +57,16 @@ function viewInit(){
         {
             message: "what would you like to view?",
             type: "list",
-            choices: ["View Departments", "View Roles", "View Employees"],
+            choices: ["View employees by department", "View employees by role", "View All Employees"],
             name: "viewInitChoices"
         }
     ]).then( (response ) =>{
         if(response.viewInitChoices === "View Departments"){
-            viewDepartments();
+            viewEmployeesByDepartments();
         } else if(response.viewInitChoices === "View Roles") {
-            viewRoles();
+            viewEmployeesByRole();
         }else if(response.viewInitChoices === "View Employees"){
-            viewEmployees();
+            viewAllEmployees();
         }
     })
 }
@@ -202,19 +203,32 @@ function getEmployees(cb){
 }
 
 
-function viewDepartments(){
-
+function viewEmployeesByDepartments(){
+    connection.query("SELECT first_name, last_name, name FROM employee LEFT JOIN role ON role.id = employee.role_id LEFT JOIN department on role.department_id = department.id", 
+    (err, results) => {
+        console.table(results);
+        askToContinue();
+    })
 
 };
 
-function viewRoles(){
-
+function viewEmployeesByRole(){
+    connection.query("SELECT first_name, last_name, title FROM employee LEFT JOIN role ON role.id = employee.role_id", 
+    (err, results) => {
+        console.table(results);
+        askToContinue();
+    })
 
 };
 
-function viewEmployees(){
-
-
+function viewAllEmployees(){
+    connection.query("SELECT first_name, last_name, name, title, salary FROM employee LEFT JOIN role ON role.id = employee.role_id LEFT JOIN department on role.department_id = department.id",
+    (err, results) =>{
+        console.table(results);
+        askToContinue();
+    })
+    
+ 
 };
 
 function updateEmployeeRoles(){
