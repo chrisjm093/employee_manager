@@ -238,10 +238,46 @@ function viewAllEmployees(){
 };
 
 function updateEmployeeRoles(){
+    getRoles((roles) =>{
+        getEmployees((employees) =>{
+            employeeSelections = employees.map( employee =>{
+                return{
+                    name: employee.first_name + ' ' + employee.last_name,
+                    value: employee.id
+                }
+            })
+            inquirer.prompt([
+                {
+                    message: "Select an employee to change their role?",
+                    type: "list",
+                    name: "employee",
+                    choices: employeeSelections
+                },
+                {
+                    message: "Which role would you like to change it to?",
+                    type: "list",
+                    name: "newRole",
+                    choices: roles.map( role =>{
+                        return{
+                            name: role.title,
+                            value: role.id
+                        };
+                    })
+                }
+            ]).then((response) => {
+                connection.query(`UPDATE employee SET role_id =  ${response.newRole} WHERE employee.id =  ${response.employee}` , (err, result) =>{
+                    if(err) throw err;
+                    console.log(result);
+                    console.log("Database updated");
+                })
+            })
+        });
+    });
+};
 
-
-;}
-
+//Ask for an employee to change their role,
+//select from a list of roles
+//update employee table with new specified role
 function askToContinue() {
     inquirer
     .prompt({
@@ -260,4 +296,4 @@ function askToContinue() {
         
     })
 }
-banner();
+updateEmployeeRoles();
