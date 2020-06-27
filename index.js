@@ -1,4 +1,4 @@
-const connection = require("./db/connection");
+const connection = require("./dev/db/connection");
 const inquirer = require("inquirer");
 const figlet = require('figlet');
 const cTable = require('console.table');
@@ -17,7 +17,7 @@ function initialize(){
         {
             message: "What would you like to do?",
             type: "list",
-            choices: ["Add to the Employee Database", "View information from the Database"],
+            choices: ["Add to the Employee Database", "View information from the Database", "Update an existing employee's role"],
             name: "addOrView"
         }
     ]).then((response) =>{
@@ -25,6 +25,8 @@ function initialize(){
             addInit();
         }else if( response.addOrView === "View information from the Database"){
             viewInit();
+        }else if( response.addOrView === "Update an existing employee's role"){
+            updateEmployeeRole();
         }
     })
 };
@@ -237,7 +239,7 @@ function viewAllEmployees(){
  
 };
 
-function updateEmployeeRoles(){
+function updateEmployeeRole(){
     getRoles((roles) =>{
         getEmployees((employees) =>{
             employeeSelections = employees.map( employee =>{
@@ -267,17 +269,17 @@ function updateEmployeeRoles(){
             ]).then((response) => {
                 connection.query(`UPDATE employee SET role_id =  ${response.newRole} WHERE employee.id =  ${response.employee}` , (err, result) =>{
                     if(err) throw err;
-                    console.log(result);
+                    console.log("==================");
                     console.log("Database updated");
+                    console.log("==================");
+                    askToContinue();
                 })
             })
         });
     });
 };
 
-//Ask for an employee to change their role,
-//select from a list of roles
-//update employee table with new specified role
+
 function askToContinue() {
     inquirer
     .prompt({
@@ -288,12 +290,19 @@ function askToContinue() {
     .then( ( response ) =>{
         console.log("=============================")
         if(response.continue === true){
-            initialize()
+            console.clear();
+            initialize();
         } else {
-            console.log("Thank You, Have a nice day!")
-            process.exit()
-        }
+            console.clear();
+            console.log("===============================");
+            console.log("| Thank You, Have a nice day! |");
+            console.log("===============================");
+            setTimeout( ()=> { console.clear, process.exit();}, 5000)
+            
+
+        };
         
-    })
-}
-updateEmployeeRoles();
+    });
+};
+
+banner();
