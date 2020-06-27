@@ -61,11 +61,17 @@ function viewInit(){
             name: "viewInitChoices"
         }
     ]).then( (response ) =>{
-        if(response.viewInitChoices === "View Departments"){
+        console.log("====================================")
+        if(response.viewInitChoices === "View employees by department"){
             viewEmployeesByDepartments();
-        } else if(response.viewInitChoices === "View Roles") {
+            console.clear();
+
+        } else if(response.viewInitChoices === "View employees by role") {
             viewEmployeesByRole();
-        }else if(response.viewInitChoices === "View Employees"){
+            console.clear();
+
+        }else if(response.viewInitChoices === "View All Employees"){
+            console.clear();
             viewAllEmployees();
         }
     })
@@ -248,7 +254,8 @@ function askToContinue() {
         if(response.continue === true){
             initialize()
         } else {
-          console.log("Thank You, Have a nice day!")
+            console.log("Thank You, Have a nice day!")
+            process.exit()
         }
         
     })

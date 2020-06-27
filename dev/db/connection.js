@@ -11,7 +11,7 @@ const connection = mySql.createConnection({
 
 connection.connect((err) =>{
     if(err) throw err;
-    console.log("Connected as "+ connection.threadId)
+    //console.log("Connected as "+ connection.threadId)
 })
 
 module.exports = connection;
